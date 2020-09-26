@@ -1,75 +1,101 @@
-#include <iostream>
-#include <fstream>
-using std:: string;
-using std:: cin;
-using std:: cout;
-using std:: endl;
+//Made By Arpita Gupta.
+#include <bits/stdc++.h>
+using namespace std;
 
-class TrieNode{
-public:
-    int frequency;
-    TrieNode* data[26]{};
-    TrieNode() {
-        frequency = 0;
-        for(auto &i : data) {
-            i = nullptr;
-        }
-    }
+// Structure for Trie
+
+struct Trie {
+	bool EndName;
+	unordered_map<char, Trie*> map;
+	int f;
 };
 
-void insert(TrieNode* root, const string& key, int freq) {
-    auto* new_node = new TrieNode;
-    for(char i : key) {
-        int index = i - 'a';
-        if(!root->data[index]) {
-            root->data[index] = new_node;
-        }
-        root = root->data[index];
-    }
-    root->frequency = freq;
+// Function to create a new Trie node
+Trie* getNewTrieNode()
+{
+	Trie* node = new Trie;
+	node->EndName = false;
+	return node;
 }
 
-void search(TrieNode* root, const string& key) {
-    for(char i : key) {
-        int index = i - 'a';
-        if(!root->data[index]) {
-            cout << "Word does not exist in the dictionary\n";
-            return;
-        }
-        root = root->data[index];
-    }
-    if(root != nullptr && root->frequency) {
-        cout << key << " " << root->frequency;
-    }
+// Function to insert a student with its frequency
+// in the dictionary built using a Trie
+
+void insert(Trie*& root, const string& str,
+			const int& f)
+{
+
+	// If root is null
+	if (root == NULL)
+		root = getNewTrieNode();
+
+	Trie* t = root;
+
+	for (int i = 0; i < str.length(); i++) {
+		char x = str[i];
+
+		// Make a new node if there is no path
+		if (t->map.find(x) == t->map.end())
+			t->map[x] = getNewTrieNode();
+
+		t = t->map[x];
+	}
+
+	// Mark end of Name and store the meaning
+	t->EndName = true;
+	t->f = f;
 }
 
-int main(int argc, char *argv[]) {
-    if (argc != 3) {
-        cout << "Usage: ./a.out word_to_be_searched <path_to_dictionary>"
-             << endl;
-        return 1;
-    }
 
-    auto *root = new TrieNode;
+// Function to search a student in the Trie and return its frequency if it exists
 
-    std::fstream words(argv[2], std::ios_base::in);
-    string line;
-    while (std::getline(words, line)) {
-        string current, freq;
-        int i = 0;
-        while(line[i] != ',') {
-            current += line[i];
-            ++i;
-        }
-        ++i;
-        while(line[i]) {
-            freq += line[i];
-            ++i;
-        }
-        insert(root, current, stoi(freq));
-        line.clear();
-    }
+ int search(Trie * root, string word){
+     if(root == NULL) return -1;
+     Trie* t = root;
 
-    search(root, argv[1]);
-    return 0;
+	// Search a student in the Trie
+
+	for (int i = 0; i < word.length(); i++) {
+		t = t->map[word[i]];
+		if (t == NULL)
+			return -1;
+	}
+
+    if (t->EndName)
+		return t->f;
+    return -1;
+ }
+
+// Main function
+
+int main()
+{
+	Trie* root = NULL;
+
+	// Build the dictionary
+	ifstream myFile;
+	myFile.open("EnglishDictionary.csv");
+	string line, word;
+	string fre;
+	vector<pair<string, int>> v;
+	int f;
+
+	while(getline(myFile, line)){
+		stringstream ss(line);
+		getline(ss, word, ',');
+		getline(ss, fre, ',');
+		f = stoi(fre);
+		v.push_back({word,f});
+	}
+
+	for(auto it : v){
+		insert(root, it.first, it.second);
+	}
+
+
+    int ans = search(root, "context");
+	if(ans != -1) cout << "YES " << ans << endl;
+	else cout << "NO\n";
+
+	return 0;
 }
