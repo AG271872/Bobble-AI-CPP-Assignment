@@ -13,7 +13,7 @@ In this problem, a dictionary containing words along with their frequency of occ
 - Then open the folder where repository is cloned, and open a terminal window there.
 - In the terminal window, type the following command to compile Find the Word program.
 ```bash
-g++ CPP_code 
+g++ First_Find_the_Word 
 ```
 - In the terminal window, type the following command to compile Reverse Search program.
 ```bash
